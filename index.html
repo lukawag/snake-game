@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Snake Game</title>
+  <style>
+    body { margin: 0; background: #111; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    canvas { background: #222; }
+  </style>
+</head>
+<body>
+  <canvas id="game" width="400" height="400"></canvas>
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const grid = 20;
+    let count = 0;
+    let snake = [{ x: 160, y: 160 }];
+    let dx = grid;
+    let dy = 0;
+    let food = {
+      x: Math.floor(Math.random() * 20) * grid,
+      y: Math.floor(Math.random() * 20) * grid
+    };
+
+    function loop() {
+      requestAnimationFrame(loop);
+      if (++count < 4) return;
+      count = 0;
+
+      const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+      if (head.x < 0 || head.y < 0 || head.x >= canvas.width || head.y >= canvas.height || snake.some(seg => seg.x === head.x && seg.y === head.y)) {
+        snake = [{ x: 160, y: 160 }];
+        dx = grid;
+        dy = 0;
+        food = {
+          x: Math.floor(Math.random() * 20) * grid,
+          y: Math.floor(Math.random() * 20) * grid
+        };
+        return;
+      }
+
+      snake.unshift(head);
+
+      if (head.x === food.x && head.y === food.y) {
+        food = {
+          x: Math.floor(Math.random() * 20) * grid,
+          y: Math.floor(Math.random() * 20) * grid
+        };
+      } else {
+        snake.pop();
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "lime";
+      snake.forEach(seg => ctx.fillRect(seg.x, seg.y, grid - 1, grid - 1));
+
+      ctx.fillStyle = "red";
+      ctx.fillRect(food.x, food.y, grid - 1, grid - 1);
+    }
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowLeft" && dx === 0) [dx, dy] = [-grid, 0];
+      else if (e.key === "ArrowUp" && dy === 0) [dx, dy] = [0, -grid];
+      else if (e.key === "ArrowRight" && dx === 0) [dx, dy] = [grid, 0];
+      else if (e.key === "ArrowDown" && dy === 0) [dx, dy] = [0, grid];
+    });
+
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
